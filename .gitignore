@@ -1,0 +1,8 @@
+# Ignore Visual Studio temporary files and Word lock files
+.vs/
+~$*
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+02_Khung/QuanLyQuanCaPhe/obj/
