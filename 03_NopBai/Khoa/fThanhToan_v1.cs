@@ -17,6 +17,10 @@ namespace QuanLyQuanCaPhe
         private int maHoaDon = -1;
         private decimal tongTien = 0;
 
+        // Thuộc tính public để tương thích nếu fBanHang của nhóm truyền dữ liệu qua Property
+        public int MaBan { get { return maBan; } set { maBan = value; } }
+        public int MaHoaDon { get { return maHoaDon; } set { maHoaDon = value; } }
+
         // Thông tin phục vụ hiển thị / in phiếu hóa đơn ngay sau khi thanh toán
         private string tenBan = "";
         private string tenNhanVien = "";
@@ -55,21 +59,42 @@ namespace QuanLyQuanCaPhe
         {
             try
             {
-                // Nếu chưa có mã hóa đơn nhưng có mã bàn -> tìm hóa đơn chưa thanh toán của bàn này
+                // 1. Nếu truyền 1 tham số vào fThanhToan(id): Tự động tìm theo ma_ban trước, nếu không có thì tìm theo ma_hoa_don
                 if (maHoaDon <= 0 && maBan > 0)
                 {
-                    string sqlTimHD = "SELECT TOP 1 ma_hoa_don FROM HoaDon WHERE ma_ban = @maBan AND ngay_thanh_toan IS NULL ORDER BY ma_hoa_don DESC";
-                    object result = KetNoi.LayGiaTri(sqlTimHD, KetNoi.P("@maBan", maBan));
+                    string sqlTimTheoBan = "SELECT TOP 1 ma_hoa_don FROM HoaDon WHERE ma_ban = @id AND ngay_thanh_toan IS NULL ORDER BY ma_hoa_don DESC";
+                    object result = KetNoi.LayGiaTri(sqlTimTheoBan, KetNoi.P("@id", maBan));
                     if (result != null && result != DBNull.Value)
                     {
                         maHoaDon = Convert.ToInt32(result);
                     }
+                    else
+                    {
+                        // Trường hợp người gọi truyền maHoaDon vào constructor 1 tham số fThanhToan(maHoaDon)
+                        string sqlTimTheoHD = "SELECT TOP 1 ma_hoa_don FROM HoaDon WHERE ma_hoa_don = @id AND ngay_thanh_toan IS NULL";
+                        object resHD = KetNoi.LayGiaTri(sqlTimTheoHD, KetNoi.P("@id", maBan));
+                        if (resHD != null && resHD != DBNull.Value)
+                        {
+                            maHoaDon = Convert.ToInt32(resHD);
+                        }
+                    }
                 }
 
-                // Nếu vẫn chưa tìm thấy hóa đơn
+                // 2. Nếu fBanHang của nhóm chỉ gọi new fThanhToan() không truyền tham số -> Tự lấy hóa đơn chưa thanh toán mới nhất
                 if (maHoaDon <= 0)
                 {
-                    MessageBox.Show("Không tìm thấy hóa đơn chưa thanh toán cho bàn này!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    string sqlTimMoiNhat = "SELECT TOP 1 ma_hoa_don FROM HoaDon WHERE ngay_thanh_toan IS NULL ORDER BY ma_hoa_don DESC";
+                    object resLatest = KetNoi.LayGiaTri(sqlTimMoiNhat);
+                    if (resLatest != null && resLatest != DBNull.Value)
+                    {
+                        maHoaDon = Convert.ToInt32(resLatest);
+                    }
+                }
+
+                // Nếu vẫn chưa tìm thấy hóa đơn chưa thanh toán nào
+                if (maHoaDon <= 0)
+                {
+                    MessageBox.Show("Hiện không có hóa đơn nào đang chờ thanh toán!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     this.Close();
                     return;
                 }
@@ -308,5 +333,7 @@ namespace QuanLyQuanCaPhe
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
+
+        private void label4_Click(object sender, EventArgs e) { }
     }
 }

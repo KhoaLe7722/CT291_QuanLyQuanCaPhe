@@ -299,5 +299,10 @@ namespace QuanLyQuanCaPhe
             // 7. Lời chào cuối hóa đơn
             g.DrawString("Cảm ơn quý khách và hẹn gặp lại!", fontNho, brush, new RectangleF(x, y, chieuRong, 26), formatGiua);
         }
+
+        // Các hàm tương thích với sự kiện gốc trong 02_Khung
+        private void button1_Click(object sender, EventArgs e) => btnLoc_Click(sender, e);
+        private void button3_Click(object sender, EventArgs e) => btnInHoaDon_Click(sender, e);
+        private void label1_Click(object sender, EventArgs e) { }
     }
 }
