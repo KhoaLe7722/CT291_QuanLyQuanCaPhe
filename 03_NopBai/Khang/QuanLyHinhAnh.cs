@@ -58,14 +58,14 @@ namespace QuanLyQuanCaPhe
 
             if (string.IsNullOrEmpty(tenFile)) return null;
 
-            // Kiểm tra các vị trí thư mục ảnh khả dụng
+            // Kiểm tra các vị trí thư mục ảnh khả dụng (dùng đường dẫn tương đối để chạy được trên mọi máy và mọi ổ đĩa)
             string[] danhSachThuMuc = new string[]
             {
                 Path.Combine(Application.StartupPath, "menu_images", tenFile),
+                Path.Combine(Application.StartupPath, @"..\menu_images", tenFile),
                 Path.Combine(Application.StartupPath, @"..\..\menu_images", tenFile),
                 Path.Combine(Application.StartupPath, @"..\..\..\menu_images", tenFile),
-                Path.Combine(@"D:\LAP TRINH UNG DUNG\CT291_QuanLyQuanCaPhe\menu_images", tenFile),
-                Path.Combine(@"D:\LAP TRINH UNG DUNG\CT291_QuanLyQuanCaPhe\02_Khung\QuanLyQuanCaPhe\menu_images", tenFile)
+                Path.Combine(Application.StartupPath, @"..\..\..\..\menu_images", tenFile)
             };
 
             foreach (string duongDan in danhSachThuMuc)
